@@ -46,18 +46,6 @@ A beautiful web application that allows you to record audio, transcribe it using
 4. **Open your browser**
    Navigate to `http://localhost:5000`
 
-### Dependencies
-
-Create a `requirements.txt` file with:
-
-```txt
-faster-whisper>=0.9.0
-flask>=2.0.0
-sounddevice>=0.4.0
-wave
-alive-progress>=3.0.0
-vaderSentiment>=3.3.0
-```
 
 ## 🎛️ Configuration
 
