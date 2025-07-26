@@ -100,7 +100,6 @@ whisper-keeper/
 ### Real-time Recording
 - Visual progress bar with countdown timer
 - Automatic stop after selected duration
-- Live audio level indicators
 
 ### Sentiment Analysis
 - **Positive**: Encouraging messages with celebration emojis
