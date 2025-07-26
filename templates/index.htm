@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisper Keeper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .main-panel h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .duration-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .slider-container {
+            position: relative;
+            margin: 10px 0;
+        }
+
+        #recordingLength {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #recordingLength::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #recordingLength::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        #recordingLength::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #recordingLength::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        #recordingLength::-webkit-slider-track {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        #recordingLength::-moz-range-track {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .slider-marks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            position: relative;
+        }
+
+        .slider-mark {
+            width: 2px;
+            height: 6px;
+            background: #ccc;
+            border-radius: 1px;
+        }
+
+        .slider-mark.major {
+            height: 10px;
+            background: #999;
+        }
+
+        .description {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .description p {
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        #recordButton {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #recordButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        #recordButton:active {
+            transform: translateY(0);
+        }
+
+        .status-section {
+            margin: 20px 0;
+        }
+
+        #status {
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #666;
+        }
+
+        #status.recording {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        #status.uploading {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
+
+        #status.success {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .recording-progress {
+            margin-top: 15px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 12px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            display: none;
+        }
+
+        .recording-progress.active {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            color: #ff6b6b;
+        }
+
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.1s ease;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        #transcription {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #28a745;
+            min-height: 60px;
+            font-style: italic;
+            color: #555;
+        }
+
+        .sentiment-section {
+            margin-top: 15px;
+            padding: 0;
+            display: none;
+        }
+
+        .sentiment-section.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sentiment-card {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sentiment-positive {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1));
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            color: #2e7d32;
+        }
+
+        .sentiment-negative {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(233, 30, 99, 0.1));
+            border: 2px solid rgba(244, 67, 54, 0.3);
+            color: #c62828;
+        }
+
+        .sentiment-neutral {
+            background: linear-gradient(135deg, rgba(158, 158, 158, 0.1), rgba(117, 117, 117, 0.1));
+            border: 2px solid rgba(158, 158, 158, 0.3);
+            color: #424242;
+        }
+
+        .sentiment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .sentiment-emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .sentiment-message {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .sentiment-tips {
+            font-size: 13px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .motivational-quotes {
+            background: linear-gradient(135deg, rgba(103, 58, 183, 0.1), rgba(63, 81, 181, 0.1));
+            border: 2px solid rgba(103, 58, 183, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            color: #4527a0;
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .quote-author {
+            font-size: 12px;
+            text-align: right;
+            opacity: 0.7;
+        }
+
+        .sparkle-animation {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        .logs-panel h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .clear-logs-btn {
+            padding: 8px 16px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-logs-btn:hover {
+            background: #ff5252;
+            transform: translateY(-1px);
+        }
+
+        .logs-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .logs-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .logs-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .log-file {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .log-file:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .log-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 12px 16px;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .log-header::before {
+            content: "📄";
+            margin-right: 8px;
+        }
+
+        .log-content {
+            padding: 16px;
+        }
+
+        .log-line {
+            padding: 4px 0;
+            color: #666;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .log-line:not(:last-child) {
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .empty-logs {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ddd, transparent);
+            margin: 20px 0;
+        }
+
+        select {
+            background: #ddd;
+            color: #666;
+            border: 1px solid #555;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+            margin-left: 10px;
+        }
+
+        select:hover {
+            border-color: #888;
+        }
+
+        select:focus {
+            border-color: #4a90e2;
+            background: linear-gradient(90deg, transparent, #ddd, transparent);
+        }
+
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 15px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .main-panel h1 {
+                font-size: 2rem;
+            }
+
+            .logs-container {
+                max-height: 50vh;
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        details {
+            background-color: #f3f3f3;
+            border: 1px solid #667eea;
+            border-radius: 6px;
+            margin-top: 20px;
+            padding: 10px;
+            color: #495057;
+            font-family: monospace;
+        }
+
+        details[open] {
+            padding-bottom: 15px;
+        }
+
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: #4fc3f7;
+            font-size: 1rem;
+            outline: none;
+            list-style: none;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+            /* hide default triangle marker */
+        }
+
+        summary::before {
+            content: "▶";
+            display: inline-block;
+            transform: rotate(0deg);
+            margin-right: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Main Panel -->
+        <div class="card main-panel">
+            <h1>🎙️ Whisper Keeper</h1>
+
+            <!-- Model selection -->
+            <div class="input-group">
+                <label for="modelSelect">
+                    <span>Whisper Model</span>
+                </label>
+                <select id="modelSelect" style="width:100%;padding:8px;border-radius:8px;">
+                    <option value="" disabled selected>Loading models...</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="recordingLength">
+                    <span>Recording Duration</span>
+                    <span class="duration-display" id="durationDisplay">5s</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="recordingLength" min="1" max="60" value="5" step="1">
+                    <div class="slider-marks">
+                        <div class="slider-mark major"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark major"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark major"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark"></div>
+                        <div class="slider-mark major"></div>
+                    </div>
+                    <div class="slider-labels">
+                        <span>1s</span>
+                        <span>15s</span>
+                        <span>30s</span>
+                        <span>45s</span>
+                        <span>60s</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="description">
+                <p>🎙️ Drag the slider to set your preferred recording duration.</p>
+                <p>🔄 Click the button below to start recording - it will automatically stop when time is up!</p>
+            </div>
+
+            <button id="recordButton">🎤 Start Recording</button>
+
+            <div class="status-section">
+                <div id="status">Ready to record</div>
+
+                <div class="recording-progress" id="recordingProgress">
+                    <div class="progress-header">
+                        <span>🔴 Recording in progress...</span>
+                        <span class="timer" id="timer">00:00</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span id="progressText">0% complete</span>
+                        <span id="remainingTime">Time remaining: 5s</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transcription"></div>
+
+            <div class="sentiment-section" id="sentimentSection">
+                <div class="sentiment-card" id="sentimentCard">
+                    <div class="sparkle-animation">✨</div>
+                    <div class="sentiment-header">
+                        <span class="sentiment-emoji" id="sentimentEmoji">😊</span>
+                        <span id="sentimentTitle">Sentiment Analysis</span>
+                    </div>
+                    <div class="sentiment-message" id="sentimentMessage"></div>
+                    <div class="sentiment-tips" id="sentimentTips"></div>
+                    <div class="motivational-quotes" id="motivationalQuotes" style="display: none;">
+                        <div class="quote-text" id="quoteText"></div>
+                        <div class="quote-author" id="quoteAuthor"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Panel -->
+        <div class="card logs-panel">
+            <h2>
+                📋 System Logs
+                <button class="clear-logs-btn" onclick="clearLogs()">🗑️ Clear Logs</button>
+            </h2>
+            <div class="logs-container">
+                <div id="logContent">
+                    <details id="logContainer" open>
+                        <summary>📄 Log Output</summary>
+                        <pre id="logContent"></pre>
+                    </details>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <details open>
+        <summary>ℹ️ About Whisper Keeper</summary>
+        <p>Whisper Keeper is a simple web application that allows you to record audio, transcribe it using OpenAI's
+            Whisper model, and analyze the sentiment of your recordings.</p>
+        <p>Developed with love by the Xteclab team, it aims to provide a seamless experience for capturing and
+            understanding your thoughts.</p>
+    </details>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let recordingTimer;
+        let recordingStartTime;
+        let totalRecordingTime;
+
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update duration display when slider changes
+        function updateDurationDisplay() {
+            const slider = document.getElementById('recordingLength');
+            const display = document.getElementById('durationDisplay');
+            const value = parseInt(slider.value);
+
+            if (value < 60) {
+                display.textContent = `${value}s`;
+            } else {
+                const mins = Math.floor(value / 60);
+                const secs = value % 60;
+                display.textContent = secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+            }
+        }
+
+        // Initialize slider event listener
+        document.getElementById('recordingLength').addEventListener('input', updateDurationDisplay);
+
+        // Motivational quotes for different sentiments
+        const motivationalQuotes = {
+            negative: [
+                { text: "Every setback is a setup for a comeback. You're stronger than you think!", author: "— Stay Strong 💪" },
+                { text: "Tough times don't last, but tough people do. This too shall pass.", author: "— Keep Going 🌟" },
+                { text: "You are braver than you believe, stronger than you seem, and smarter than you think.", author: "— A.A. Milne 🌈" },
+                { text: "The darkest hour is just before dawn. Better days are coming!", author: "— Hope Ahead ☀️" },
+                { text: "Your current situation is not your final destination. Keep moving forward!", author: "— Progress 🚀" }
+            ],
+            positive: [
+                { text: "Your positive energy is contagious! Keep spreading those good vibes!", author: "— Shine On ✨" },
+                { text: "Success is not just about what you accomplish, but what you inspire others to do.", author: "— Keep Inspiring 🎯" },
+                { text: "Happiness is not by chance, but by choice. Great choice today!", author: "— Well Done 🎉" },
+                { text: "You're radiating positivity! That's the secret ingredient to a great life.", author: "— Amazing Energy 🌟" },
+                { text: "Your smile is your superpower. Keep using it to change the world!", author: "— Super You 😊" }
+            ],
+            neutral: [
+                { text: "Sometimes the most productive thing you can do is relax and be present.", author: "— Mindful Moments 🧘" },
+                { text: "Balance is not something you find, it's something you create.", author: "— Find Your Center ⚖️" },
+                { text: "Every moment is a fresh beginning. What will you create next?", author: "— New Possibilities 🌱" },
+                { text: "Calm seas never made skilled sailors. You're building resilience.", author: "— Growing Strong 🌊" },
+                { text: "In the middle of difficulty lies opportunity.", author: "— Einstein 💡" }
+            ]
+        };
+
+        // Sentiment responses
+        const sentimentResponses = {
+            Positive: {
+                emoji: "😊",
+                title: "Great vibes detected! 🌟",
+                message: "You're radiating positivity! Your optimistic energy is wonderful to hear.",
+                tips: "Keep that beautiful energy flowing - you're doing amazing!",
+                cardClass: "sentiment-positive"
+            },
+            Negative: {
+                emoji: "🤗",
+                title: "Sending you some love 💕",
+                message: "I can sense you might be going through a tough time. Remember, you're not alone in this.",
+                tips: "Take a deep breath, be kind to yourself, and remember that this feeling is temporary. You've got this! 🌈",
+                cardClass: "sentiment-negative"
+            },
+            Neutral: {
+                emoji: "😌",
+                title: "Balanced and thoughtful 🧘",
+                message: "You seem calm and centered right now. There's beauty in this peaceful state.",
+                tips: "Sometimes the best moments are the quiet, reflective ones. Enjoy this balance!",
+                cardClass: "sentiment-neutral"
+            }
+        };
+
+        // Show sentiment analysis
+        function showSentimentAnalysis(sentiment) {
+            const section = document.getElementById('sentimentSection');
+            const card = document.getElementById('sentimentCard');
+            const emoji = document.getElementById('sentimentEmoji');
+            const title = document.getElementById('sentimentTitle');
+            const message = document.getElementById('sentimentMessage');
+            const tips = document.getElementById('sentimentTips');
+            const quotesDiv = document.getElementById('motivationalQuotes');
+            const quoteText = document.getElementById('quoteText');
+            const quoteAuthor = document.getElementById('quoteAuthor');
+
+            const response = sentimentResponses[sentiment];
+            if (!response) return;
+
+            // Reset classes
+            card.className = `sentiment-card ${response.cardClass}`;
+
+            // Update content
+            emoji.textContent = response.emoji;
+            title.textContent = response.title;
+            message.textContent = response.message;
+            tips.textContent = response.tips;
+
+            // Add motivational quote for negative sentiment
+            if (sentiment === 'Negative') {
+                const quotes = motivationalQuotes.negative;
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                quoteText.textContent = `"${randomQuote.text}"`;
+                quoteAuthor.textContent = randomQuote.author;
+                quotesDiv.style.display = 'block';
+            } else if (sentiment === 'Positive') {
+                const quotes = motivationalQuotes.positive;
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                quoteText.textContent = `"${randomQuote.text}"`;
+                quoteAuthor.textContent = randomQuote.author;
+                quotesDiv.style.display = 'block';
+            } else if (sentiment === 'Neutral') {
+                const quotes = motivationalQuotes.neutral;
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                quoteText.textContent = `"${randomQuote.text}"`;
+                quoteAuthor.textContent = randomQuote.author;
+                quotesDiv.style.display = 'block';
+            } else {
+                quotesDiv.style.display = 'none';
+            }
+
+            // Show the section with animation
+            section.classList.add('show');
+        }
+
+        // Hide sentiment analysis
+        function hideSentimentAnalysis() {
+            const section = document.getElementById('sentimentSection');
+            section.classList.remove('show');
+        }
+
+        // Update progress bar and timer
+        function updateProgress() {
+            const now = Date.now();
+            const elapsed = Math.floor((now - recordingStartTime) / 1000);
+            const remaining = Math.max(0, totalRecordingTime - elapsed);
+            const progress = Math.min(100, (elapsed / totalRecordingTime) * 100);
+
+            // Update timer
+            document.getElementById('timer').textContent = formatTime(elapsed);
+
+            // Update progress bar
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
+            // Update progress text
+            document.getElementById('progressText').textContent = `${Math.round(progress)}% complete`;
+
+            // Update remaining time
+            document.getElementById('remainingTime').textContent = `Time remaining: ${remaining}s`;
+
+            if (remaining > 0) {
+                requestAnimationFrame(updateProgress);
+            }
+        }
+
+        // Show/hide progress section
+        function showProgress(show = true) {
+            const progressDiv = document.getElementById('recordingProgress');
+            if (show) {
+                progressDiv.classList.add('active');
+            } else {
+                progressDiv.classList.remove('active');
+            }
+        }
+
+        // Reset progress indicators
+        function resetProgress() {
+            document.getElementById('timer').textContent = '00:00';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressText').textContent = '0% complete';
+            document.getElementById('remainingTime').textContent = 'Time remaining: 0s';
+            showProgress(false);
+        }
+
+        document.getElementById('recordButton').onclick = async function () {
+            const status = document.getElementById('status');
+            const button = this;
+            const lengthInput = document.getElementById('recordingLength').value;
+            let length = parseInt(lengthInput);
+
+            if (!length || isNaN(length) || length <= 0) {
+                length = 5; // Default
+                status.innerHTML = "⚠️ Invalid length. Using default 5 seconds.";
+                status.className = '';
+                resetProgress();
+            } else {
+                status.innerHTML = `🎙️ Starting ${length}-second recording...`;
+                status.className = 'recording';
+                hideSentimentAnalysis(); // Hide previous sentiment analysis
+            }
+
+            button.disabled = true;
+            button.innerHTML = '🔴 Recording...';
+            audioChunks = [];
+            totalRecordingTime = length;
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+                // 1) START the recorder:
+                mediaRecorder.start();
+
+                // 2) record the start time and show the progress UI:
+                recordingStartTime = Date.now();
+                showProgress(true);
+                requestAnimationFrame(updateProgress);
+
+                // 3) schedule it to STOP after `length` seconds:
+                recordingTimer = setTimeout(() => {
+                    mediaRecorder.stop();
+                    clearTimeout(recordingTimer);
+                }, length * 1000);
+
+                mediaRecorder.onstop = async () => {
+                    showProgress(false);
+                    status.innerHTML = '<span class="loading-spinner"></span>Processing and uploading...';
+                    status.className = 'uploading';
+
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob, 'recording.wav');
+                    formData.append('model', document.getElementById('modelSelect').value); // 新增
+                    try {
+                        const response = await fetch('/transcribe', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) throw new Error("Upload failed");
+
+                        const result = await response.json();
+                        const transcriptionDiv = document.getElementById('transcription');
+                        transcriptionDiv.innerHTML = `<strong>Transcription:</strong> ${result.transcription || '[No text recognized]'}`;
+
+                        // Show sentiment analysis if available
+                        if (result.sentiment) {
+                            showSentimentAnalysis(result.sentiment);
+                        }
+
+                        status.innerHTML = '✅ Recording completed successfully!';
+                        status.className = 'success';
+                        fetchLogs();
+                    }
+                    catch (err) {
+                        status.innerHTML = "❌ Upload or transcription failed.";
+                        status.className = '';
+                        hideSentimentAnalysis();
+                        console.error(err);
+                    }
+
+                    stream.getTracks().forEach(track => track.stop());
+                    button.disabled = false;
+                    button.innerHTML = '🎤 Start Recording';
+                    resetProgress();
+                }
+            }
+            catch (err) {
+                console.error("Mic access error", err);
+                status.innerHTML = "🎙️ Failed to access microphone. Please check permissions.";
+                status.className = '';
+                button.disabled = false;
+                button.innerHTML = '🎤 Start Recording';
+                resetProgress();
+
+            };
+        }
+
+        // Clear logs
+        function clearLogs() {
+            fetch('/clear_logs', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('logContent').innerHTML = '<div class="empty-logs">Logs cleared successfully</div>';
+                        document.getElementById('status').innerHTML = "🗑️ Logs cleared.";
+                        document.getElementById('status').className = 'success';
+                        console.log("Logs cleared successfully.");
+                    } else {
+                        console.error("Failed to clear logs.");
+                    }
+                })
+                .catch(err => console.error("Error clearing logs", err));
+        }
+
+        // Load models
+        async function loadModels() {
+            const select = document.getElementById('modelSelect');
+            select.innerHTML = '<option disabled selected>Loading models...</option>';
+            try {
+                const response = await fetch('/list_models');
+                const models = await response.json();
+                if (models.length === 0) {
+                    select.innerHTML = '<option disabled>No models found</option>';
+                } else {
+                    select.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+                    select.selectedIndex = 0;
+                }
+            } catch (err) {
+                select.innerHTML = '<option disabled>Error loading models</option>';
+            }
+        }
+        loadModels();
+
+        // Load logs with improved formatting
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/logs');
+                const logs = await response.json();
+                const logContent = document.getElementById('logContent');
+
+                if (!logs || logs.length === 0) {
+                    logContent.innerHTML = '<div class="empty-logs">No logs available</div>';
+                    return;
+                }
+
+                // Group logs by filename and format them
+                const formattedLogs = logs.map(logEntry => {
+                    const lines = logEntry.split('\n');
+                    const filename = lines[0].replace(':', ''); // Remove the colon
+                    const content = lines.slice(1); // Get all lines except the filename
+
+                    return `
+                        <details id="logContainer" close>
+                            <summary class="log-header">${filename}</summary>
+                            <div class="log-file">
+                                
+                                <div class="log-content">
+                                    ${content.map(line => line.trim() ? `<div class="log-line">${line}</div>` : '').join('')}
+                                </div>
+                        </div>
+                        </details>
+                    `;
+                }).join('');
+
+                logContent.innerHTML = formattedLogs;
+            } catch (err) {
+                console.error("Log fetch error", err);
+                document.getElementById('logContent').innerHTML = '<div class="empty-logs">⚠️ Failed to load logs.</div>';
+            }
+        }
+
+        // Load logs on page load
+        fetchLogs();
+    </script>
+</body>
+
+</html>
